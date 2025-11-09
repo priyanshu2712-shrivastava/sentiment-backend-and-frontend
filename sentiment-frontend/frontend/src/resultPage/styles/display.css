@@ -1,0 +1,140 @@
+.results {
+    padding: 20px;
+}
+
+.summary-stats h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+}
+.card-container {
+    display: flex;
+    height: 100%;
+    padding: 20px;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.brown {
+    background-color: #dd8a3d;
+    ;
+}
+
+.green {
+    background-color: #0c9b0c;
+    ;
+}
+
+.blue {
+    background-color: #9461dc;
+}
+
+.red {
+    background-color: #e32424
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    height: 100%;
+    width: 70%;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: 400ms;
+}
+
+.card-container .stat-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 20px #4444;
+}
+
+.card-container:hover>.stat-card:not(:hover) {
+    filter: blur(1.5px);
+    transform: scale(0.9, 0.9);
+}
+
+.stat-label {
+    font-size: 1.3em;
+    font-weight: 400;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.stat-number {
+    font-size: 1.5em;
+    font-weight: 700;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.charts-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+    color: black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.chart-item {
+    flex: 1 1 50%;
+    min-width: 0;
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    align-items: center;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: sans-serif;
+    max-width: 70vw;
+    margin: 0 auto;
+    max-height: 65vh;
+    overflow: scroll;
+    color: black;
+}
+
+.comment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color:white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+}
+
+.sentiment-label {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+    margin-left: 15px;
+}
+
+.positive {
+    background-color: green;
+    color: white;
+}
+
+.neutral {
+    background-color: gray;
+    color: white;
+}
+
+.negative {
+    background-color: red;
+    color: white;
+}
