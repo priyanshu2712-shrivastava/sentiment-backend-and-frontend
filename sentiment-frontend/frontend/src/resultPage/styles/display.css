@@ -103,16 +103,24 @@
     color: black;
 }
 
+.dark .comments-list {
+    color: white;
+}
+
 .comment-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color:white;
+    color: black;
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #dee2e6;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-radius: 5px;
+}
+
+.dark .comment-item {
+    color: white;
 }
 
 .sentiment-label {

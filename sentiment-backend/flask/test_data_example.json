@@ -1,0 +1,35 @@
+[
+    {
+        "text": "This is amazing! I love it!",
+        "sentiment": 1
+    },
+    {
+        "text": "It's okay, nothing special.",
+        "sentiment": 0
+    },
+    {
+        "text": "This is terrible. Very disappointed.",
+        "sentiment": -1
+    },
+    {
+        "text": "Great quality and fast delivery!",
+        "sentiment": 1
+    },
+    {
+        "text": "The product broke after one day.",
+        "sentiment": -1
+    },
+    {
+        "text": "The service was average, could be better.",
+        "sentiment": 0
+    },
+    {
+        "text": "Outstanding customer support! Highly recommend.",
+        "sentiment": 1
+    },
+    {
+        "text": "Worst experience ever. Will never buy again.",
+        "sentiment": -1
+    }
+]
+

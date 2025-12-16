@@ -1,0 +1,10 @@
+text,sentiment
+"This is amazing! I love it!",1
+"It's okay, nothing special.",0
+"This is terrible. Very disappointed.",-1
+"Great quality and fast delivery!",1
+"The product broke after one day.",-1
+"The service was average, could be better.",0
+"Outstanding customer support! Highly recommend.",1
+"Worst experience ever. Will never buy again.",-1
+

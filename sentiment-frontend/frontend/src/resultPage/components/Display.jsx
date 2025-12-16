@@ -81,7 +81,7 @@ function Display({ results, sentimentCounts, wordData }) {
           </div>
         </div>
         {/* individual comments list */}
-        <h3>Individual Comment List</h3>
+        <h3 className="text-gray-900 dark:text-white">Individual Comment List</h3>
         <div className="comments-list">
           {results.analysis.map((result, index) => {
             const sentiment = getSentimentDetails(result.sentiment);
