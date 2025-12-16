@@ -1,13 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import InputForm from './components/InputForm'
 import Display from './components/Display';
 import { analyzeSentiments, generateChart, generateWordCloud } from '../api';
 import '../resultPage/styles/dashboard.css'
 import Loading from './components/Loading';
-import Navbar from '../LandingPage/component/Navbar.jsx'
+import DasNav from './components/DasNav';
 import jsPDF from 'jspdf';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import html2canvas from 'html2canvas';
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firbase/firbaseConfig.js";
+import Login from '../utils/Login.jsx';
 // Gemini API Configuration
 // Note: If your API key doesn't work, verify it starts with "AIza" (not "Alza")
 // The key from the image appears to start with "Alza" but Google keys typically start with "AIza"
@@ -25,10 +28,10 @@ function Dashboard() {
             // Try gemini-1.5-flash first (faster and free), fallback to gemini-1.5-pro
             let model;
             try {
-                model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
             } catch (e) {
                 console.log("Trying gemini-1.5-pro instead...");
-                model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+                model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
             }
 
             const positivePercentage = ((positiveCount / totalComments) * 100).toFixed(2);
@@ -37,27 +40,45 @@ function Dashboard() {
 
             const prompt = `Act as a Senior Data Analyst and Technical Writer. I will provide you with raw statistics from a Sentiment Analysis Report. Your goal is to rewrite this into a formal 'Executive Stakeholder Report.'
 
-The Data:
-    Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-    Total Comments: ${totalComments}
-    Positive: ${positiveCount} (${positivePercentage}%)
-    Neutral: ${neutralCount} (${neutralPercentage}%)
-    Negative: ${negativeCount} (${negativePercentage}%)
+    The Data:
 
-Report Requirements:
-    Tone: Formal, objective, and corporate.
-    Structure:
-        1. Executive Summary: High-level overview of the feedback volume.
-        2. Performance Verdict: Apply the following logic to determine the status:
-            - Exceptional: > 80% Positive
-            - Strong Performer: 65% - 79% Positive
-            - Satisfactory: 50% - 64% Positive
-            - Needs Attention: 30% - 49% Positive
-            - Critical: < 30% Positive
-        3. Sentiment Distribution: A breakdown of the metrics with implications.
-        5. Strategic Recommendations: Based on the sentiment split, suggest general next steps.
+        Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
 
-Please generate the full report now. Format it with clear section headings and professional language suitable for executive stakeholders.`;
+        Total Comments: ${totalComments}
+
+        Positive: ${positiveCount} (${positivePercentage}%)
+
+        Neutral: ${neutralCount} (${neutralPercentage}%)
+
+        Negative: ${negativeCount} (${negativePercentage}%)
+
+    Report Requirements:
+
+        Tone: Formal, objective, and corporate.
+
+        Structure:
+
+            Executive Summary: High-level overview of the feedback volume.
+
+            Performance Verdict: Apply the following logic to determine the status:
+
+                Market Leader: 90% - 100% Positive
+
+                Excellent: 75% - 89% Positive
+
+                Good / Strong: 60% - 74% Positive
+
+                Satisfactory: 50% - 59% Positive
+
+                At Risk: 35% - 49% Positive
+
+                Critical Failure: 0% - 34% Positive
+
+            Sentiment Distribution: A breakdown of the metrics.
+
+            Strategic Recommendations: Based on the sentiment split, suggest general next steps (e.g., if Satisfactory, focus on converting Neutrals to Positives).
+
+    Please generate the full report now. Format it with clear section headings and professional language suitable for executive stakeholders.`;
 
             console.log("Calling Gemini API...");
             const result = await model.generateContent(prompt);
@@ -228,8 +249,9 @@ Please generate the full report now. Format it with clear section headings and p
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             
-            // Check if line is a section heading (numbered or bold)
-            if (line.match(/^\d+\.\s+[A-Z]/) || line.match(/^[A-Z][^a-z]*$/)) {
+            // Check if line is a section heading (numbered, with or without period, or all caps)
+            if (line.match(/^\d+\.?\s+[A-Z]/) || 
+                (line.match(/^[A-Z][A-Z\s:]+$/) && line.length > 5 && !line.includes('STATUS'))) {
                 if (currentSection.title) {
                     sections.push(currentSection);
                 }
@@ -239,7 +261,7 @@ Please generate the full report now. Format it with clear section headings and p
             }
         }
         
-        if (currentSection.title) {
+        if (currentSection.title || currentSection.content.length > 0) {
             sections.push(currentSection);
         }
         
@@ -247,16 +269,32 @@ Please generate the full report now. Format it with clear section headings and p
     };
 
    const generateFallbackReport = (totalComments, positiveCount, neutralCount, negativeCount) => {
-        const positivePercentage = ((positiveCount / totalComments) * 100).toFixed(2);
+        const positivePercentage = parseFloat(((positiveCount / totalComments) * 100).toFixed(2));
         const neutralPercentage = ((neutralCount / totalComments) * 100).toFixed(2);
         const negativePercentage = ((negativeCount / totalComments) * 100).toFixed(2);
         
         let verdict = "Satisfactory";
-        if (positivePercentage > 80) verdict = "Exceptional";
-        else if (positivePercentage >= 65) verdict = "Strong Performer";
-        else if (positivePercentage >= 50) verdict = "Satisfactory";
-        else if (positivePercentage >= 30) verdict = "Needs Attention";
-        else verdict = "Critical";
+        let interpretation = "";
+        
+        if (positivePercentage >= 90) {
+            verdict = "Market Leader";
+            interpretation = "Perfection. Focus on retention.";
+        } else if (positivePercentage >= 75) {
+            verdict = "Excellent";
+            interpretation = "Highly competitive. Minor tweaks needed.";
+        } else if (positivePercentage >= 60) {
+            verdict = "Good / Strong";
+            interpretation = "Solid performance but room for growth.";
+        } else if (positivePercentage >= 50) {
+            verdict = "Satisfactory";
+            interpretation = "Passable. Vulnerable to competitors. The majority of users view the product favorably. However, a significant portion of the user base remains neutral or dissatisfied. The immediate goal is to stabilize the positive base while addressing the specific pain points driving negative feedback.";
+        } else if (positivePercentage >= 35) {
+            verdict = "At Risk";
+            interpretation = "Significant churn risk. Immediate action required.";
+        } else {
+            verdict = "Critical Failure";
+            interpretation = "Product or service is failing.";
+        }
         
         return `1. Executive Summary
 
@@ -269,23 +307,22 @@ STATUS: ${verdict.toUpperCase()}
 
 Logic: The Positive Sentiment Index is ${positivePercentage}%, which falls within the ${verdict} threshold.
 
-Interpretation: ${verdict === "Exceptional" ? "The product is performing exceptionally well with overwhelming positive feedback." : 
-verdict === "Strong Performer" ? "The product demonstrates strong performance with majority positive sentiment." :
-verdict === "Satisfactory" ? "The majority of users view the product favorably. However, a significant portion of the user base remains neutral or dissatisfied. The immediate goal is to stabilize the positive base while addressing the specific pain points driving negative feedback." :
-verdict === "Needs Attention" ? "The product requires immediate attention as negative sentiment is significant. Focus on addressing core issues." :
-"Critical action is required as the product is receiving predominantly negative feedback."}
+    Interpretation: ${interpretation}
 
 3. Sentiment Distribution Analysis
 
 The following breakdown illustrates the polarity of the analyzed feedback:
 
     Positive Sentiment: ${positivePercentage}% (${positiveCount} Comments)
+
         Implication: Indicates core features are meeting user expectations.
 
     Neutral Sentiment: ${neutralPercentage}% (${neutralCount} Comments)
+
         Implication: Represents a "swing" demographic. These users are ambivalent and are prime targets for conversion to positive through minor improvements.
 
     Negative Sentiment: ${negativePercentage}% (${negativeCount} Comments)
+
         Implication: Highlights critical friction points requiring immediate remediation.
 
 4. Strategic Recommendations
@@ -294,7 +331,7 @@ To elevate the status from ${verdict} to a higher performance tier, the followin
 
     Convert the Neutrals: ${neutralPercentage}% of users are on the fence. Review "Neutral" comments to identify missing features or minor annoyances that prevent them from being fully satisfied.
 
-    Root Cause Analysis: Investigate the ${negativePercentage}% Negative feedback for recurring defects or issues.
+    Root Cause Analysis: Investigate the ${negativePercentage}% Negative feedback for recurring defects (e.g., specific hardware failures or shipping delays).
 
     Leverage Promoters: Engage with the ${positivePercentage}% positive users for testimonials to boost social proof.`;
     };
@@ -565,12 +602,29 @@ To elevate the status from ${verdict} to a higher performance tier, the followin
         setIsLoading(false);
     }
 }
+const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, currentUser => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
     return (
-  <div className="w-full min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 
-                  dark:[background:linear-gradient(135deg,#2e003e,#000000)]
+
+        <>
+        {
+!user ? <div className='w-screen h-screen flex items-center justify-center dark:bg-black dark:text-white'>
+            <div className='border border-2  p-3 rounded-md shadow-md '>
+        <Login content={"Login To get Started"}/>
+        </div>
+        </div>
+        :
+        
+  <div className="w-full min-h-screen bg-white
+                  dark:bg-black
                   font-sans m-0 p-0 text-gray-900 dark:text-white transition-colors duration-300">
-    <Navbar/>
+    <DasNav/>
     <h1 className="text-center text-3xl font-extrabold py-5 text-gray-900 dark:text-white">
       Sentiment Analysis Dashboard
     </h1>
@@ -602,6 +656,8 @@ To elevate the status from ${verdict} to a higher performance tier, the followin
 
 }
   </div>
+}
+</>
 );
 
 }

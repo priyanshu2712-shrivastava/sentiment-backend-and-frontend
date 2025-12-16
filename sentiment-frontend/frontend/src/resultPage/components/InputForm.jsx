@@ -53,7 +53,7 @@ function InputForm({ onAnalysisRequest ,setIsLoading}) {
     };
 
     return (
-        <div className='inputBox-container'>
+        <div className='inputBox-container w-full  '>
             < Input
             onsubmit={handleUrlSubmit}
             onFileUpload={handleFileUpload}
