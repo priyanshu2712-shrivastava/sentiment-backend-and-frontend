@@ -4,8 +4,8 @@ import styled from 'styled-components';
 const Input = ({onsubmit, onFileUpload, value, onchange}) => {
     return (
         <StyledWrapper>
-            <div className="messageBox">
-                <div className="fileUploadWrapper">
+            <div className="messageBox w-full ">
+                <div className="fileUploadWrapper w-full">
                     <label htmlFor="file">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 337 337">
                             <circle strokeWidth={20} stroke="#6c6c6c" fill="none" r="158.5" cy="168.5" cx="168.5" />
@@ -27,7 +27,7 @@ const Input = ({onsubmit, onFileUpload, value, onchange}) => {
                     placeholder="Enter the post url"
                     value={value}
                     type="text"
-                    className='!text-black'
+                    className='!text-black w-full'
                     id="messageInput"
                     onChange={onchange}
                 />
@@ -44,7 +44,7 @@ const Input = ({onsubmit, onFileUpload, value, onchange}) => {
 
 const StyledWrapper = styled.div`
   .messageBox {
-    width: fit-content;
+    width: 500px;
     height: 40px;
     display: flex;
     align-items: center;
@@ -114,7 +114,7 @@ const StyledWrapper = styled.div`
     transition: all 0.3s;
   }
   #messageInput {
-    width: 200px;
+    width: 80%;
     height: 100%;
     background-color: transparent;
     outline: none;

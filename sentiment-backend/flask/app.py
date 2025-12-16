@@ -34,9 +34,10 @@ import matplotlib.dates as mdates
 
 app = Flask(__name__)
 CORS(
-    app, resources={r"/*": {"origins": "http://localhost:5173"}}
-)  # Enable CORS for all routes
-
+    app,
+    supports_credentials=True,
+    origins=["*"]
+)
 
 # Define the preprocessing function
 def preprocess_comment(comment):

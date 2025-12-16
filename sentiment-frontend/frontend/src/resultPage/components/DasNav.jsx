@@ -1,11 +1,9 @@
-// components/Navbar.jsx (Optimized)
-
-import React, { useState, useEffect } from "react";
-import Switch from "../../utils/Switch.jsx"; // Assuming this is your Theme Toggle
+import React from 'react'
+import { useState ,useEffect} from 'react';
 import { motion } from 'framer-motion'; // Using 'framer-motion' standard import
-
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+import Switch from '../../utils/Switch';
+function DasNav() {
+   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,21 +64,13 @@ function Navbar() {
         </h1>
       </div>
 
-      {/* Navigation Links (Added Placeholder) */}
-      <div className="hidden md:flex items-center space-x-8 text-lg font-medium">
-        <a href="#services" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Features</a>
-        <a href="#how-it-works" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">How It Works</a>
-        <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Contact</a>
-      </div>
-
-      {/* Theme Switch & CTA */}
       <div className="flex items-center space-x-4">
         <Switch /> {/* Theme toggle component */}
         
         
       </div>
     </motion.nav>
-  );
+  )
 }
 
-export default Navbar;
+export default DasNav
